@@ -2,6 +2,7 @@
 # This is the main game file
 # I will first program everything in here, and
 # then I will capsule modules later on
+# Afterwards I will implement an online mode and a level editor
 
 # Imports
 import pygame
@@ -23,13 +24,58 @@ pygame.init()
 # Define game objects
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, x_start, y_start, image):
-        super().__init__()
+        super(Sprite, self).__init__()
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x_start, y_start
 
-        self.vx = 0
-        self.vy = 0
+
+class PassiveObj(Sprite):
+    def __init__(self, x_start, y_start, image):
+        super(PassiveObj, self).__init__(x_start, y_start, image)
+
+
+class ActiveObj(Sprite):
+    def __init__(self, x_start, y_start, image, vx_init=0, vy_init=0):
+        super(ActiveObj, self).__init__(x_start, y_start, image)
+        self.vx, self.vy = vx_init, vy_init
+
+    def update_movement(self):
+        self.rect.x += self.vx / FPS
+        self.rect.y += self.vy / FPS
+
+    def check_for_boundaries(self, width, height):
+        if self.rect.left > width:
+            self.rect.left = width
+        elif self.rect.right < 0:
+            self.rect.right = 0
+        if self.rect.bottom > height:
+            self.rect.bottom = height
+        elif self.rect.top < 0:
+            self.rect.top = 0
+
+    def check_for_obstacles(self, obstacles):
+        hit_list = pygame.sprite.spritecollide(self, obstacles, False)
+        for hit in hit_list:
+            if self.vx > 0:
+                self.rect.right = hit.rect.left
+            elif self.vx < 0:
+                self.rect.left = hit.rect.right
+            if self.vy > 0:
+                self.rect.top = hit.rect.bottom
+            elif self.vy < 0:
+                self.rect.bottom = hit.rect.top
+
+    def process_collisions(self, sprites):
+        hit_list = pygame.sprite.spritecollide(self, sprites, False)
+        for hit in hit_list:
+            print(hit)
+
+    def update(self, scene):
+        self.check_for_obstacles(scene.obstacles)
+        self.check_for_boundaries(scene.width, scene.height)
+        self.process_collisions(scene.sprites)
+        self.update_movement()
 
 
 # Scene manager class
@@ -65,7 +111,8 @@ class Game:
         self.process_exit()
 
     def update(self):
-        pass
+        for sprite in self.scene.sprites:
+            sprite.update()
 
     def draw(self):
         self.window.fill(BACKGROUND_COLOR)
