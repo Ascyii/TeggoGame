@@ -12,14 +12,12 @@ CAPTION = "Teggo Game 2021"
 WIDTH = 500
 HEIGHT = 500
 FPS = 60
+GRID = 64
 BACKGROUND_COLOR = "GREEN"
 
-# Initialize Pygame
+# Initialize pygame
 pygame.mixer.init()
 pygame.init()
-pygame.display.set_caption(CAPTION)
-window = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame_clock = pygame.time.Clock()
 
 
 # Define game objects
@@ -52,6 +50,9 @@ class Scene:
 # Game manager class
 class Game:
     def __init__(self):
+        self.clock = pygame.time.Clock()
+        self.window = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption(CAPTION)
         self.running = True
         self.scene = Scene()
 
@@ -67,8 +68,8 @@ class Game:
         pass
 
     def draw(self):
-        window.fill(BACKGROUND_COLOR)
-        self.scene.sprites.draw(window)
+        self.window.fill(BACKGROUND_COLOR)
+        self.scene.sprites.draw(self.window)
 
     def loop(self):
         while self.running:
@@ -77,7 +78,7 @@ class Game:
             self.draw()
 
             pygame.display.update()
-            pygame_clock.tick(FPS)
+            self.clock.tick(FPS)
 
 
 # Main Function
