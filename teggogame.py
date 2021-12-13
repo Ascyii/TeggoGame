@@ -106,9 +106,20 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+
+    def process_keyboard(self):
+        pass
+
+    def process_mouse(self):
+        pass
 
     def process_events(self):
         self.process_exit()
+        self.process_keyboard()
+        self.process_mouse()
 
     def update(self):
         for sprite in self.scene.sprites:
